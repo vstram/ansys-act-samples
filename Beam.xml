@@ -1,0 +1,131 @@
+<!-- 
+This XML declares the Beam Wizard ACT example
+
+Created on 27/05/2016
+
+@author: vinicius@esss.com.br
+-->
+<extension version="170" minorversion="1" name="Beam">
+    <!-- Use the website below to generate a GUID (Globally Unique Identifier)for this ACT APP -->
+    <!-- https://guidgenerator.com/ -->
+    <!-- Or execute the command below in the Workbench Command Window -->
+    <!-- import System;System.Guid.NewGuid().ToString() -->
+    <guid>a7b1fff2-89b9-4af7-9c7c-0401860c1f44</guid>
+    <author>ESSS - vinicius@esss.com.br</author>
+    <description>Simple Beam extension wizard.</description>
+
+    <!-- Define the scripts that will be used by the wizard -->
+    <script src="project.py" /> <!-- This script contains the code for the wizard -->
+    <script src="dm.py" /> <!-- This script contains the geometry (Design Modeler) code -->
+    <script src="ds.py" /> <!-- This script contains the mechanical setup (Mechanical) code -->
+
+    <!-- Declare the wizard -->
+    <wizard name="BeamWizard" version="1" context="Project" icon="mechanical.png">
+        <description>Simple Beam wizard</description>
+
+        <!-- Geometry Definition Step -->
+        <step name="Geometry" caption="Geometry" version="1" HelpFile="help/geometry.html">
+            <description>Create the Beam geometry component.</description>
+            
+            <!-- Defines the callbacks -->
+            <callbacks>
+                <onupdate>CreateGeometry</onupdate>
+                <onreset>DeleteGeometry</onreset>
+            </callbacks>
+
+            <!-- Properties Definition -->
+            <propertygroup display="caption" name="GeometryProperties" caption="Geometry Properties" >
+                <property name="Length" caption="Length"  control="float" unit="Length" >
+                    <callbacks>
+                        <isvalid>isPositive</isvalid>
+                    </callbacks>
+                </property>
+                <property name="Height" caption="Height"  control="float" unit="Length" >
+                    <callbacks>
+                        <isvalid>isPositive</isvalid>
+                    </callbacks>
+                </property>
+                <property name="Width" caption="Width"  control="float" unit="Length" >
+                    <callbacks>
+                        <isvalid>isPositive</isvalid>
+                    </callbacks>
+                </property>
+            </propertygroup>
+        </step>
+
+        <!-- Mesh/Material Definition Step -->
+        <step name="Mechanical-Mesh" caption="Mechanical-Mesh" enabled="true" version="1" HelpFile="help/mechanical-mesh.html">
+            <description>Model Setup: Meshing and BCs</description>
+            <callbacks>
+                <onupdate>CreateSetup</onupdate>
+                <onreset>DeleteSetup</onreset>
+            </callbacks>
+
+            <!-- Properties Definition -->
+            
+            <!-- Material Definition -->
+            <propertygroup display="caption" name="Properties" caption="Properties">
+                <property name="Material" caption="Material" control="select" default="Structural Steel">
+                    <attributes options="Structural Steel,Stainless Steel" />
+                </property>
+            </propertygroup>
+
+            <!-- Mesh Definition -->
+            <propertygroup display="caption" name="Meshing" caption="Meshing">
+                <property name="ElementSize" caption="Element Size"  control="float" unit="Length" default="0.02 [m]">
+                    <callbacks>
+                        <isvalid>isPositive</isvalid>
+                    </callbacks>
+                </property>
+            </propertygroup>
+
+        </step>
+        
+        <!-- Load Definition Step -->
+        <step name="Mechanical-Load" caption="Mechanical-Load" enabled="true" version="1" HelpFile="help/mechanical-load.html">
+            <description>Model Setup: Loads</description>
+            <callbacks>
+                <onupdate>DefineLoadSetup</onupdate>
+            </callbacks>
+            
+            <!-- Properties Definition -->
+            
+            <!-- Loadings Definition -->
+            <propertygroup display="caption" name="Loading" caption="Loading">
+                <property name="Force" caption="Force" control="float" unit="Force">
+                </property>
+            </propertygroup>
+        </step>
+    </wizard>
+
+    <interface context="DesignModeler">
+        <images>images</images>
+
+        <!-- Toolbar Definition -->
+        <toolbar name="Beam" caption="Beam">
+        </toolbar>
+    </interface>
+
+    <simdata context="DesignModeler">
+        <geometry name="Beam" caption="Beam" icon="box" version="1">
+            <callbacks>
+                <ongenerate>OnGenerateBeam</ongenerate>
+            </callbacks>
+            
+            <!-- Properties -->
+            <propertygroup display="caption" name="GeometryProperties" caption="Geometry Properties" >
+            </propertygroup>
+        </geometry>
+    </simdata>
+
+    <interface context="Mechanical">
+        <images>images</images>
+
+        <!-- Toolbar Definition -->
+        <toolbar name="Beam" caption="Beam">
+        </toolbar>
+    </interface>
+
+    <simdata context="Mechanical">
+    </simdata>
+</extension>
